@@ -1,0 +1,16 @@
+{
+  "name": "mmosvr",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "test":"node server.js --env=test",
+    "production":"node server.js --env=production"
+  },
+  "dependencies": {
+    "minimist": "*",
+    "extend": "*",
+    "binary-parser": "*",
+    "mongoose": "*",
+    "underscore": "*"
+  }
+}
