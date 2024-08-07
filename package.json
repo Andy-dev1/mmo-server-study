@@ -10,6 +10,7 @@
     "minimist": "*",
     "extend": "*",
     "binary-parser": "*",
+    "performance-now":"*",
     "mongoose": "*",
     "underscore": "*"
   }
