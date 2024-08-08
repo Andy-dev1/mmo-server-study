@@ -9,7 +9,13 @@ module.exports = function () {
   //this.user={}
 
   this.initiate = () => {
-    //Do some stuff
+    var client = this;
+    //Send the connection handshake packet to the client
+    client.socket.write(packet.build(["HELLO", now().toString()]));
+    console.log("Client initiated");
+    //console.log(packet.build(["HELLO", now().toString()]));
+    
+    
   };
   this.data = function (data) {
     console.log("Client data: " + data.toString());
