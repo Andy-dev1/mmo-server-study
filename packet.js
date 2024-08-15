@@ -39,4 +39,48 @@ module.exports = packet = {
 
     return finalPacket;
   },
+
+  //Parse a packet to be handled for a client
+  parse: function (c, data) {
+    var idx = 0;
+    while (idx < data.length) {
+      var packetSize = data.readUInt8(idx);
+      var extractedPacket = new Buffer.from(packetSize);
+      data.copy(extractedPacket, 0, idx, idx + packetSize);
+
+      this.interpret(c, extractedPacket);
+
+      idx += packetSize;
+    }
+  },
+  interpret: function (c, datapacket) {
+    var header = PacketModels.header.parse(datapacket);
+    console.log("Interpert: " + header.command);
+
+    switch (header.command.toUpperCase()) {
+      case "LOGIN":
+        var data = PacketModels.login.parse(datapacket);
+        User.login(data.username, data.password, function (result, user) {
+          if (result) {
+            c.user = user;
+            c.enterroom(c.user.current_room);
+            c.socket.write(
+              packet.build([
+                "LOGIN",
+                "TRUE",
+                c.user.current_room,
+                c.user.pos_x,
+                c.user.pos_y,
+                c.user.username,
+              ])
+            );
+          } else {
+            c.socket.write(packet.build(["LOGIN", "FALSE"]));
+          }
+        });
+        break;
+      case "REGISTER":
+        break;
+    }
+  },
 };
