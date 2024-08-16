@@ -45,7 +45,7 @@ module.exports = packet = {
     var idx = 0;
     while (idx < data.length) {
       var packetSize = data.readUInt8(idx);
-      var extractedPacket = new Buffer.from(packetSize);
+      var extractedPacket = new Buffer(packetSize);
       data.copy(extractedPacket, 0, idx, idx + packetSize);
 
       this.interpret(c, extractedPacket);
@@ -59,8 +59,10 @@ module.exports = packet = {
 
     switch (header.command.toUpperCase()) {
       case "LOGIN":
+       
         var data = PacketModels.login.parse(datapacket);
         User.login(data.username, data.password, function (result, user) {
+          console.log("Login Result " + result);
           if (result) {
             c.user = user;
             c.enterroom(c.user.current_room);
@@ -80,6 +82,15 @@ module.exports = packet = {
         });
         break;
       case "REGISTER":
+        var data = PacketModels.register.parse(datapacket);
+        User.register(data.username, data.password, function (result) {
+          if (result) {
+            c.socket.write(packet.build(["REGISTER", "TRUE"]));
+          } else {
+            c.socket.write(packet.build(["REGISTER", "FALSE"]));
+          }
+        });
+
         break;
     }
   },

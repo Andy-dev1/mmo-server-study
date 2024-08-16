@@ -9,36 +9,37 @@ var userSchema = new mongoose.Schema({
   pos_y: Number,
 });
 
-userSchema.statics.register = function (username, password, cb) {
-  var new_user = new User({
-    username: username,
-    password: password,
-    sprite: "spr_hero",
-    current_room: maps[config.starting_zone].room,
-    pos_x: maps[config.starting_zone].start_x,
-    pos_y: maps[config.starting_zone].start_y,
-  });
+userSchema.statics.register = async function (username, password, cb) {
+  try {
+    var new_user = new User({
+      username: username,
+      password: password,
+      sprite: "spr_hero",
+      current_room: maps[config.starting_zone].room,
+      pos_x: maps[config.starting_zone].start_x,
+      pos_y: maps[config.starting_zone].start_y,
+    });
 
-  new_user.save(function (err) {
-    if (!err) {
-      cb(true);
-    } else {
-      cb(false);
-    }
-  });
+    await new_user.save();
+    cb(true);
+  } catch (err) {
+    console.log("Erro no registro: "+err);
+    
+    cb(false);
+  }
 };
-userSchema.statics.login = function (username, password, cb) {
-  User.findOne({ username: username }, function (err, user) {
-    if (!err && user) {
-      if (user.password == password) {
-        cb(true, user);
-      } else {
-        cb(false, null);
-      }
+userSchema.statics.login = async function (username, password, cb) {
+  try {
+    const user = await User.findOne({ username: username });
+    
+    if (user && user.password === password) {
+      cb(true, user);
     } else {
       cb(false, null);
     }
-  });
+  } catch (err) {
+    cb(false, null);
+  }
 };
 
 module.exports = User = gamedb.model("User", userSchema);
